@@ -24,11 +24,15 @@ RUN wget https://downloads.tuxfamily.org/godotengine/${GODOT_VERSION}/Godot_v${G
     && mv templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable \
     && rm -f Godot_v${GODOT_VERSION}-stable_export_templates.tpz Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip
 
-RUN mkdir /temp/build -p
-RUN godot --headless --export-release "Web" /temp/build/index.html
+WORKDIR /temp/build
+
+COPY . .
+
+RUN mkdir /temp/output -p
+RUN godot --headless --export-release "Web" ../output/index.html
 
 FROM nginx:latest as final
 
 COPY ./nginx.conf /etc/nginx/nginx.conf
 
-COPY --from=build /temp/build/ /usr/share/nginx/html/ 
+COPY --from=build /temp/output/ /usr/share/nginx/html/ 
